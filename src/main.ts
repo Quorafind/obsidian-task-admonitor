@@ -1,4 +1,4 @@
-import { EventRef, MarkdownView, Plugin, TFile } from "obsidian";
+import { EventRef, ItemView, MarkdownView, Plugin, TFile } from "obsidian";
 import dayjs from "dayjs";
 import { AppHelper } from "./app-helper";
 import { DEFAULT_SETTINGS, OldNoteAdmonitorTab, Settings } from "./settings";
@@ -31,11 +31,12 @@ export default class OldNoteAdmonitorPlugin extends Plugin {
   }
 
   addListeners() {
-    this.fileOpenHandler = this.app.workspace.on("file-open", (file) => {
-      this.exec(file);
+    this.fileOpenHandler = this.app.workspace.on("active-leaf-change", (leaf) => {
+      this.exec((leaf?.view as ItemView) || null);
     });
     if (this.settings.triggerToUpdate === "On open or save file") {
       this.fileSaveHandler = this.app.vault.on("modify", (file) => {
+        // @ts-ignore
         this.exec(file as TFile);
       });
     }
@@ -57,25 +58,15 @@ export default class OldNoteAdmonitorPlugin extends Plugin {
     await this.exec(this.appHelper.getActiveFile());
   }
 
-  async exec(file: TFile | null) {
+  async exec(view: ItemView | null) {
     const markdownView = this.appHelper.getMarkdownViewInActiveLeaf();
-    if (!markdownView || !file) {
-      return;
-    }
-    if (markdownView.file.path !== file.path) {
+    if (!markdownView || !view) {
       return;
     }
 
     this.removeAdmonitor(markdownView);
-    if (
-      this.settings.excludePrefixPathPatterns.some((p) =>
-        file.path.startsWith(p)
-      )
-    ) {
-      return;
-    }
 
-    const lastUpdated = await this.findDate(file);
+    const lastUpdated = await dayjs();
     if (!lastUpdated) {
       if (this.settings.showWarningIfDataIsNotFound) {
         this.insertAdmonitor(markdownView, "The date was not found", "error");
@@ -92,12 +83,12 @@ export default class OldNoteAdmonitorPlugin extends Plugin {
     }
   }
 
-  removeAdmonitor(markdownView: MarkdownView) {
+  removeAdmonitor(markdownView: ItemView) {
     markdownView.containerEl.find(`.${ADMONITOR_CLS}`)?.remove();
   }
 
   insertAdmonitor(
-    markdownView: MarkdownView,
+    markdownView: ItemView,
     text: string,
     type: AdmonitorType
   ) {
@@ -117,6 +108,13 @@ export default class OldNoteAdmonitorPlugin extends Plugin {
       text,
       cls,
     });
+
+    el.onclick = () => {
+      //@ts-expect-error, private method
+      app.setting.open();
+      //@ts-expect-error, private method
+      app.setting.openTabById('obsidian-note-admonitor');
+    }
     markdownView.containerEl
       .find(".view-header")
       .insertAdjacentElement("beforebegin", el);

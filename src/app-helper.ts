@@ -1,5 +1,5 @@
 import {
-  App,
+  App, ItemView,
   MarkdownView,
   TFile,
   Vault,
@@ -49,12 +49,12 @@ export class AppHelper {
     this.unsafeApp = app as any;
   }
 
-  getActiveFile(): TFile | null {
-    return this.unsafeApp.workspace.getActiveFile();
+  getActiveFile(): ItemView | null {
+    return this.unsafeApp.workspace.getActiveViewOfType(ItemView);
   }
 
-  getMarkdownViewInActiveLeaf(): MarkdownView | null {
-    return this.unsafeApp.workspace.getActiveViewOfType(MarkdownView);
+  getMarkdownViewInActiveLeaf(): ItemView | null {
+    return this.unsafeApp.workspace.getActiveViewOfType(ItemView);
   }
 
   getNoCacheFrontMatter(content: string): { [key: string]: string } | null {
