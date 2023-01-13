@@ -49,11 +49,10 @@ export class OldNoteAdmonitorTab extends PluginSettingTab {
 
     containerEl.empty();
 
-    containerEl.createEl("h2", { text: "Old Note Admonitor - Settings" });
+    containerEl.createEl("h2", { text: "Task Admonitor - Settings" });
 
     new Setting(containerEl)
       .setName("Message template")
-      .setDesc("${numberOfDays} and ${date} are available variables")
       .addText((tc) => {
         tc.inputEl.addClass("old-note-admonitor__settings__message_template");
         return tc
@@ -126,36 +125,5 @@ export class OldNoteAdmonitorTab extends PluginSettingTab {
           await this.plugin.saveSettings();
         });
     });
-
-    new Setting(containerEl)
-      .setName("Show a warning if the date is not found")
-      .addToggle((cb) =>
-        cb
-          .setValue(this.plugin.settings.showWarningIfDataIsNotFound)
-          .onChange(async (value) => {
-            this.plugin.settings.showWarningIfDataIsNotFound = value;
-            await this.plugin.saveSettings();
-          })
-      );
-
-    new Setting(containerEl)
-      .setName("Exclude prefix path patterns")
-      .setDesc(
-        "If set, It doesn't show a warning in the file whose path starts with one of the patterns. It can set multi patterns by line breaks."
-      )
-      .addTextArea((tc) => {
-        const el = tc
-          .setPlaceholder("(ex: Notes/Private)")
-          .setValue(this.plugin.settings.excludePrefixPathPatterns.join("\n"))
-          .onChange(async (value) => {
-            this.plugin.settings.excludePrefixPathPatterns =
-              smartLineBreakSplit(value);
-            await this.plugin.saveSettings();
-          });
-        el.inputEl.className =
-          "old-note-admonitor____settings__exclude_path_patterns";
-
-        return el;
-      });
   }
 }

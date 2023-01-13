@@ -113,7 +113,7 @@ export default class OldNoteAdmonitorPlugin extends Plugin {
       //@ts-expect-error, private method
       app.setting.open();
       //@ts-expect-error, private method
-      app.setting.openTabById('obsidian-note-admonitor');
+      app.setting.openTabById('obsidian-task-admonitor');
     }
     markdownView.containerEl
       .find(".view-header")
