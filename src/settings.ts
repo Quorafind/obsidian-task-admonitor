@@ -39,6 +39,8 @@ export const DEFAULT_SETTINGS: Settings = {
 export class OldNoteAdmonitorTab extends PluginSettingTab {
   plugin: OldNoteAdmonitorPlugin;
 
+  private inputEl: HTMLInputElement;
+
   constructor(app: App, plugin: OldNoteAdmonitorPlugin) {
     super(app, plugin);
     this.plugin = plugin;
@@ -54,6 +56,7 @@ export class OldNoteAdmonitorTab extends PluginSettingTab {
     new Setting(containerEl)
       .setName("Message template")
       .addText((tc) => {
+          this.inputEl = tc.inputEl;
         tc.inputEl.addClass("old-note-admonitor__settings__message_template");
         return tc
           .setValue(String(this.plugin.settings.messageTemplate))
@@ -125,5 +128,9 @@ export class OldNoteAdmonitorTab extends PluginSettingTab {
           await this.plugin.saveSettings();
         });
     });
+  }
+
+  focus(): void {
+      this.inputEl.focus();
   }
 }

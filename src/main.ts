@@ -1,4 +1,4 @@
-import { EventRef, ItemView, MarkdownView, Plugin, TFile } from "obsidian";
+import { EventRef, ItemView, MarkdownView, Plugin, PluginSettingTab, TFile } from "obsidian";
 import dayjs from "dayjs";
 import { AppHelper } from "./app-helper";
 import { DEFAULT_SETTINGS, OldNoteAdmonitorTab, Settings } from "./settings";
@@ -14,13 +14,15 @@ type AdmonitorType = "warning" | "error";
 export default class OldNoteAdmonitorPlugin extends Plugin {
   appHelper: AppHelper;
   settings: Settings;
+  settingTab: PluginSettingTab;
   fileOpenHandler: EventRef;
   fileSaveHandler: EventRef;
 
   async onload() {
     this.appHelper = new AppHelper(this.app);
     await this.loadSettings();
-    this.addSettingTab(new OldNoteAdmonitorTab(this.app, this));
+    this.settingTab = new OldNoteAdmonitorTab(this.app, this)
+    this.addSettingTab(this.settingTab);
 
     await this.exec(this.appHelper.getActiveFile());
     this.addListeners();
@@ -61,6 +63,11 @@ export default class OldNoteAdmonitorPlugin extends Plugin {
   async exec(view: ItemView | null) {
     const markdownView = this.appHelper.getMarkdownViewInActiveLeaf();
     if (!markdownView || !view) {
+      return;
+    }
+
+    // @ts-ignore
+    if(markdownView.leaf.getRoot().side || view.leaf.getRoot().side) {
       return;
     }
 
@@ -114,6 +121,8 @@ export default class OldNoteAdmonitorPlugin extends Plugin {
       app.setting.open();
       //@ts-expect-error, private method
       app.setting.openTabById('obsidian-task-admonitor');
+      //@ts-expect-error, private method
+      this.settingTab.focus();
     }
     markdownView.containerEl
       .find(".view-header")

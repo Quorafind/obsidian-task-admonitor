@@ -1,7 +1,7 @@
 {
   "id": "obsidian-task-admonitor",
   "name": "Task Admonitor",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "minAppVersion": "0.16.0",
   "description": "This Obsidian plugin shows warnings if the note has not been updated for over specific days",
   "author": "tadashi-aikawa",
